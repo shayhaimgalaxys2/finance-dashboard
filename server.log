@@ -1,0 +1,15 @@
+▲ Next.js 16.1.6
+- Local:         http://localhost:3000
+- Network:       http://192.168.68.65:3000
+
+✓ Starting...
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/shayhaim/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/shayhaim/finance-dashboard/package-lock.json
+
+✓ Ready in 444ms
+[Scheduler] Started with cron: 0 7 * * *
+[Instrumentation] Scheduler started - daily report at 07:00 Israel time
