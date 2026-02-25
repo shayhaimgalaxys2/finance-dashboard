@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set("session_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: request.headers.get("x-forwarded-proto") === "https" || request.url.startsWith("https"),
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
@@ -113,8 +113,8 @@ export async function PUT(request: NextRequest) {
 
     response.cookies.set("session_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: request.headers.get("x-forwarded-proto") === "https" || request.url.startsWith("https"),
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60,
       path: "/",
     });
