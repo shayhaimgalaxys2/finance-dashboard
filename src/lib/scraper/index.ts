@@ -58,6 +58,8 @@ export async function scrapeAccount(
       startDate,
       combineInstallments: false,
       showBrowser: false,
+      timeout: 120000,
+      defaultTimeout: 120000,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +67,7 @@ export async function scrapeAccount(
 
     if (!result.success) {
       const errorMsg = result.errorMessage || result.errorType || "שגיאה לא ידועה";
+      console.error(`[Scraper] Failed for ${account.name}: type=${result.errorType}, msg=${result.errorMessage}`);
       db.insert(scrapeLogs).values({
         accountId,
         status: "error",
@@ -129,6 +132,7 @@ export async function scrapeAccount(
     return { accountId, accountName: account.name, success: true, transactionsCount: totalInserted };
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "שגיאה לא ידועה";
+    console.error(`[Scraper] Exception for ${account.name}:`, err);
     db.insert(scrapeLogs).values({
       accountId,
       status: "error",
