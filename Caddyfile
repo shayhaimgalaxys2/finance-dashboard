@@ -1,0 +1,5 @@
+# Replace YOUR_SERVER_IP with the Oracle Cloud public IP
+# Or use a domain name if you have one (e.g., finance.example.com)
+:80 {
+    reverse_proxy app:3000
+}

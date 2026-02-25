@@ -85,11 +85,11 @@ export default function AccountsPage() {
         body: JSON.stringify({ accountId }),
       });
       const data = await res.json();
-      if (res.ok && data.results?.[0]?.success) {
+      if (res.ok && data.results?.[0]?.status === "success") {
         toast.success(`נסרקו ${data.results[0].transactionsCount} עסקאות חדשות`);
         fetchAccounts();
       } else {
-        toast.error(data.results?.[0]?.error || "שגיאה בסריקה");
+        toast.error(data.results?.[0]?.errorMessage || "שגיאה בסריקה");
       }
     } catch {
       toast.error("שגיאה בסריקה");

@@ -22,10 +22,15 @@ async function scrapeAccount(
 
   try {
     // Decrypt credentials
-    const credentialsJson = decrypt(
-      account.encryptedCredentials,
-      masterPassword
-    );
+    let credentialsJson: string;
+    try {
+      credentialsJson = decrypt(
+        account.encryptedCredentials,
+        masterPassword
+      );
+    } catch {
+      throw new Error("שגיאה בפענוח פרטי הגישה - יתכן שסיסמת המאסטר השתנתה. יש למחוק את החשבון ולהוסיף אותו מחדש.");
+    }
     const credentials = JSON.parse(credentialsJson);
 
     // Dynamic import of israeli-bank-scrapers to avoid SSR issues

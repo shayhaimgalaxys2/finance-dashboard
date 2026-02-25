@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    container_name: finance-dashboard
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - finance-data:/app/data
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: finance-caddy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  finance-data:
+  caddy-data:
+  caddy-config:
