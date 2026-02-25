@@ -1,4 +1,5 @@
 import { CompanyTypes, createScraper } from "israeli-bank-scrapers";
+import puppeteer from "puppeteer";
 import { db } from "@/lib/db";
 import { accounts, transactions, scrapeLogs } from "@/lib/db/schema";
 import { decrypt } from "@/lib/crypto";
@@ -53,12 +54,18 @@ export async function scrapeAccount(
     const startDate = new Date();
     startDate.setMonth(startDate.getMonth() - 2);
 
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    });
+
     const scraper = createScraper({
       companyId: companyId as CompanyTypes,
       startDate,
       combineInstallments: false,
       showBrowser: false,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      browser,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
