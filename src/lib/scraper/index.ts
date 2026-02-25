@@ -58,6 +58,7 @@ export async function scrapeAccount(
       startDate,
       combineInstallments: false,
       showBrowser: false,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
