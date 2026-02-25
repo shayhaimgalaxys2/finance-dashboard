@@ -1,14 +1,11 @@
 import { db } from "@/lib/db";
-import { settings } from "@/lib/db/schema";
+import { settings, sessions } from "@/lib/db/schema";
 import { hashPassword, verifyPassword, generateToken } from "@/lib/crypto";
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { NextRequest } from "next/server";
 
 const MASTER_PASSWORD_KEY = "master_password_hash";
 const SESSION_COOKIE_NAME = "session_token";
-
-// In-memory token store with master password for credential decryption
-const activeTokens = new Map<string, { createdAt: number; masterPassword: string }>();
 
 const TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
@@ -42,39 +39,62 @@ export async function isSetup(): Promise<boolean> {
 }
 
 export function createSession(masterPassword: string): string {
-  // Clean up expired tokens
-  const now = Date.now();
-  for (const [token, data] of activeTokens.entries()) {
-    if (now - data.createdAt > TOKEN_EXPIRY_MS) {
-      activeTokens.delete(token);
-    }
-  }
+  // Clean up expired sessions
+  db.delete(sessions)
+    .where(lt(sessions.expiresAt, new Date().toISOString()))
+    .run();
 
   const token = generateToken();
-  activeTokens.set(token, { createdAt: now, masterPassword });
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + TOKEN_EXPIRY_MS);
+
+  db.insert(sessions)
+    .values({
+      token,
+      masterPassword,
+      createdAt: now.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+    })
+    .run();
+
   return token;
 }
 
 export function isValidToken(token: string): boolean {
-  const data = activeTokens.get(token);
-  if (!data) return false;
-  if (Date.now() - data.createdAt > TOKEN_EXPIRY_MS) {
-    activeTokens.delete(token);
+  const session = db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.token, token))
+    .get();
+
+  if (!session) return false;
+
+  if (new Date(session.expiresAt) < new Date()) {
+    db.delete(sessions).where(eq(sessions.token, token)).run();
     return false;
   }
+
   return true;
 }
 
 export function getMasterPasswordFromSession(request: NextRequest): string | null {
   const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
-  const data = activeTokens.get(token);
-  if (!data) return null;
-  if (Date.now() - data.createdAt > TOKEN_EXPIRY_MS) {
-    activeTokens.delete(token);
+
+  const session = db
+    .select()
+    .from(sessions)
+    .where(eq(sessions.token, token))
+    .get();
+
+  if (!session) return null;
+
+  if (new Date(session.expiresAt) < new Date()) {
+    db.delete(sessions).where(eq(sessions.token, token)).run();
     return null;
   }
-  return data.masterPassword;
+
+  return session.masterPassword;
 }
 
 export async function validateSession(

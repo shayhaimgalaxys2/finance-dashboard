@@ -57,6 +57,13 @@ export const scrapeLogs = sqliteTable("scrape_logs", {
   completedAt: text("completed_at"),
 });
 
+export const sessions = sqliteTable("sessions", {
+  token: text("token").primaryKey(),
+  masterPassword: text("master_password").notNull(),
+  createdAt: text("created_at").notNull().$defaultFn(() => new Date().toISOString()),
+  expiresAt: text("expires_at").notNull(),
+});
+
 export const settings = sqliteTable("settings", {
   key: text("key").primaryKey(),
   value: text("value").notNull(),

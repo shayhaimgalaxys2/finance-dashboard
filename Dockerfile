@@ -1,4 +1,4 @@
-FROM --platform=linux/arm64 node:20-slim
+FROM --platform=linux/amd64 node:20-slim
 
 # Install Chromium and build tools for native modules (better-sqlite3)
 RUN apt-get update && apt-get install -y \
