@@ -11,6 +11,9 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOSTNAME=0.0.0.0
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox
+      - CHROMIUM_PATH=/usr/bin/chromium-no-sandbox
 
   caddy:
     image: caddy:2-alpine
