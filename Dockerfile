@@ -10,10 +10,14 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Tell Puppeteer to use system Chromium
+# Create chromium wrapper that always runs with --no-sandbox (required for Docker root)
+RUN printf '#!/bin/bash\nexec /usr/bin/chromium --no-sandbox --disable-setuid-sandbox --disable-dev-shm-usage "$@"\n' > /usr/bin/chromium-no-sandbox && \
+    chmod +x /usr/bin/chromium-no-sandbox
+
+# Tell Puppeteer to use the wrapper
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-no-sandbox
+ENV CHROMIUM_PATH=/usr/bin/chromium-no-sandbox
 
 WORKDIR /app
 
